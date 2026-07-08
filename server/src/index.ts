@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { API_PREFIX, WS_PATH } from '../../shared/constants.ts';
+import { createBackfill } from './backfill.ts';
 import { config } from './config.ts';
 import { connectDb } from './db.ts';
 import { createPoller } from './poller.ts';
@@ -22,7 +23,21 @@ const app = express();
 app.disable('x-powered-by');
 
 let hub: Hub | undefined;
-const poller = createPoller({ db, onUpdate: (snap) => hub?.broadcast(snap) });
+const backfill = createBackfill({ db });
+let backfillStarted = false;
+
+const poller = createPoller({
+  db,
+  onUpdate: (snap) => {
+    hub?.broadcast(snap);
+    // After the first successful poll we know the coin list — seed history for
+    // a cold database so the detail chart has data right away.
+    if (!backfillStarted && snap.upstream.ok) {
+      backfillStarted = true;
+      backfill.run(snap.coins).catch((err) => console.error('history backfill failed:', err));
+    }
+  }
+});
 
 app.use(API_PREFIX, createRoutes({ db, poller }));
 
@@ -58,6 +73,7 @@ poller.start().catch((err) => console.error('poller failed to start:', err));
 for (const signal of SHUTDOWN_SIGNALS) {
   process.on(signal, async () => {
     poller.stop();
+    backfill.stop();
     hub?.close();
     server.close();
     await db.client.close();

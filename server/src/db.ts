@@ -25,8 +25,6 @@ export interface TickDoc {
   coinId: string;
   ts: Date;
   price: number;
-  change24h: number | null;
-  marketCap: number;
 }
 
 export interface Db {

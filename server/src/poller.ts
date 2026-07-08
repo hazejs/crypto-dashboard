@@ -44,9 +44,7 @@ async function persist(db: Db, fresh: Coin[], fetchedAt: Date) {
     })),
     { deleteMany: { filter: { _id: { $nin: fresh.map((c) => c.id) } } } }
   ]);
-  await db.ticks.insertMany(
-    fresh.map((c) => ({ coinId: c.id, ts: fetchedAt, price: c.price, change24h: c.change24h, marketCap: c.marketCap }))
-  );
+  await db.ticks.insertMany(fresh.map((c) => ({ coinId: c.id, ts: fetchedAt, price: c.price })));
 }
 
 async function loadLastKnownGood(db: Db, state: State) {

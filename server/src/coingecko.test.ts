@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
-import { fetchTopCoins, UpstreamError } from './coingecko.ts';
+import { fetchCoinHistory, fetchTopCoins, UpstreamError } from './coingecko.ts';
 
 const realFetch = globalThis.fetch;
 afterEach(() => {
@@ -42,4 +42,14 @@ test('rejects other bad statuses', async () => {
 test('rejects an empty payload', async () => {
   stubFetch({ ok: true, status: 200, json: async () => [] });
   await assert.rejects(fetchTopCoins, /empty or malformed/);
+});
+
+test('maps market_chart points to history ticks', async () => {
+  stubFetch({ ok: true, status: 200, json: async () => ({ prices: [[1700000000000, 62000.5]] }) });
+  assert.deepEqual(await fetchCoinHistory('bitcoin'), [{ ts: new Date(1700000000000), price: 62000.5 }]);
+});
+
+test('rejects a malformed history response', async () => {
+  stubFetch({ ok: true, status: 200, json: async () => ({}) });
+  await assert.rejects(() => fetchCoinHistory('bitcoin'), /malformed history/);
 });
