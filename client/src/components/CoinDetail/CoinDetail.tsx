@@ -20,7 +20,7 @@ export function CoinDetail({ coin, lastFetchAt, onClose }: CoinDetailProps) {
   const { points, error } = useHistory(coin.id, lastFetchAt);
 
   return (
-    <aside className="detail" aria-label={STR.detailAria(coin.name)}>
+    <div className="detail" aria-label={STR.detailAria(coin.name)}>
       <header className="detail-header">
         <h2 className="coin-name">
           <img src={coin.image} alt="" width="24" height="24" />
@@ -46,6 +46,6 @@ export function CoinDetail({ coin, lastFetchAt, onClose }: CoinDetailProps) {
       {!error && !points && <StateMessage>{STR.historyLoading}</StateMessage>}
       {!error && points && points.length < MIN_CHART_POINTS && <StateMessage>{STR.historyTooShort}</StateMessage>}
       {!error && points && points.length >= MIN_CHART_POINTS && <Sparkline points={points} />}
-    </aside>
+    </div>
   );
 }

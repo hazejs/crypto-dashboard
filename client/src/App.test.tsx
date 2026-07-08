@@ -11,10 +11,11 @@ const live = (over: Partial<ReturnType<typeof useLiveData>> = {}) =>
   mockLive.mockReturnValue({ snapshot: makeSnapshot(), connected: true, failedAttempts: 0, ...over });
 
 describe('App', () => {
-  it('shows a loading state before the first snapshot', () => {
+  it('shows a skeleton table before the first snapshot', () => {
     live({ snapshot: null, connected: false });
-    render(<App />);
-    screen.getByText('Loading market data…');
+    const { container } = render(<App />);
+    screen.getByLabelText('Loading market data…');
+    expect(container.querySelectorAll('.skel').length).toBeGreaterThan(0);
   });
 
   it('shows an error state while the server is unreachable', () => {

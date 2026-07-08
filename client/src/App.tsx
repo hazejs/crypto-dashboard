@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { CoinDetail } from './components/CoinDetail/CoinDetail';
 import { CoinTable } from './components/CoinTable/CoinTable';
+import { CoinTableSkeleton } from './components/CoinTableSkeleton/CoinTableSkeleton';
 import { FreshnessBadge } from './components/FreshnessBadge/FreshnessBadge';
 import { StateMessage } from './components/StateMessage/StateMessage';
 import { UpstreamBanner } from './components/UpstreamBanner/UpstreamBanner';
@@ -12,7 +12,6 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const coins = snapshot?.coins ?? [];
-  const selected = coins.find((c) => c.id === selectedId) ?? null;
 
   return (
     <div className="app">
@@ -23,24 +22,19 @@ export default function App() {
 
       {snapshot && coins.length > 0 && <UpstreamBanner upstream={snapshot.upstream} />}
 
-      {!snapshot && failedAttempts === 0 && <StateMessage>{STR.loadingMarket}</StateMessage>}
+      {!snapshot && failedAttempts === 0 && <CoinTableSkeleton />}
       {!snapshot && failedAttempts > 0 && <StateMessage error>{STR.serverUnreachable}</StateMessage>}
       {snapshot && coins.length === 0 && <StateMessage>{STR.noDataYet}</StateMessage>}
 
       {coins.length > 0 && (
-        <main className={selected ? 'layout with-detail' : 'layout'}>
-          <div>
-            <CoinTable coins={coins} selectedId={selectedId} onSelect={setSelectedId} />
-            <p className="hint">{STR.tableHint}</p>
-          </div>
-          {selected && snapshot && (
-            <CoinDetail
-              key={selected.id}
-              coin={selected}
-              lastFetchAt={snapshot.lastFetchAt}
-              onClose={() => setSelectedId(null)}
-            />
-          )}
+        <main>
+          <CoinTable
+            coins={coins}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            lastFetchAt={snapshot?.lastFetchAt ?? null}
+          />
+          <p className="hint">{STR.tableHint}</p>
         </main>
       )}
     </div>
