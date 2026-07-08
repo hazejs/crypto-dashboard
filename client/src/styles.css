@@ -113,17 +113,20 @@ h3 { font-size: 13px; font-weight: 600; color: var(--ink-secondary); margin: 20p
 .coin-name { display: flex; align-items: center; gap: 8px; font-weight: 500; }
 .coin-name img { border-radius: 50%; }
 
-/* Detail drawer — expands under the selected row like a bottom drawer */
+/* Detail drawer — slides open and closed under the selected row */
 .detail-row { cursor: default; }
 .coin-table tbody tr.detail-row:hover { background: transparent; }
 .detail-row td { padding: 0; border-bottom: 1px solid var(--grid); }
-.drawer { overflow: hidden; animation: drawer-open 0.3s ease-out; }
-@keyframes drawer-open {
-  from { max-height: 0; opacity: 0; }
-  to { max-height: 480px; opacity: 1; }
+.drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.18s ease-out, opacity 0.18s ease-out;
 }
-.detail { padding: 16px 24px 20px; }
-.detail .sparkline { max-width: 760px; }
+.drawer.open { grid-template-rows: 1fr; opacity: 1; }
+.drawer-inner { overflow: hidden; min-height: 0; }
+.detail { padding: 10px 20px 14px; }
+.detail .sparkline { max-width: 680px; }
 
 /* Loading skeleton */
 .skel {
@@ -148,8 +151,9 @@ h3 { font-size: 13px; font-weight: 600; color: var(--ink-secondary); margin: 20p
   border-radius: 6px;
 }
 .close:hover { color: var(--ink); background: rgba(255, 255, 255, 0.06); }
-.detail-price { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
-.big-price { font-size: 26px; font-weight: 600; }
+.detail-price { display: flex; align-items: baseline; gap: 10px; margin-top: 4px; }
+.big-price { font-size: 22px; font-weight: 600; }
+.detail h3 { margin: 10px 0 6px; }
 
 /* Sparkline chart */
 .sparkline { position: relative; }

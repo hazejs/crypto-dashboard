@@ -4,7 +4,7 @@ import type { HistoryPoint } from '../../../../shared/types';
 // leaves room for the end-of-line direct label.
 export const CHART = {
   width: 560,
-  height: 220,
+  height: 180,
   pad: { top: 14, right: 84, bottom: 26, left: 10 }
 } as const;
 

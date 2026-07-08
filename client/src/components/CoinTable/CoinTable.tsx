@@ -3,6 +3,9 @@ import type { Coin } from '../../../../shared/types';
 import { STR } from '../../strings';
 import { CoinDetail } from '../CoinDetail/CoinDetail';
 import { CoinRow } from '../CoinRow/CoinRow';
+import { DetailDrawer } from '../DetailDrawer/DetailDrawer';
+
+const COLUMN_COUNT = 5;
 
 export interface CoinTableProps {
   coins: Coin[];
@@ -40,15 +43,9 @@ export function CoinTable({ coins, selectedId, onSelect, lastFetchAt }: CoinTabl
               selected={coin.id === selectedId}
               onSelect={(id) => onSelect(id === selectedId ? null : id)}
             />
-            {coin.id === selectedId && (
-              <tr className="detail-row">
-                <td colSpan={5}>
-                  <div className="drawer">
-                    <CoinDetail coin={coin} lastFetchAt={lastFetchAt} onClose={() => onSelect(null)} />
-                  </div>
-                </td>
-              </tr>
-            )}
+            <DetailDrawer open={coin.id === selectedId} colSpan={COLUMN_COUNT}>
+              <CoinDetail coin={coin} lastFetchAt={lastFetchAt} onClose={() => onSelect(null)} />
+            </DetailDrawer>
           </Fragment>
         ))}
       </tbody>
