@@ -1,0 +1,23 @@
+{
+  "name": "crypto-dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c blue,green \"npm:dev -w server\" \"npm:dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm start -w server",
+    "test": "npm test -ws",
+    "typecheck": "npm run typecheck -ws"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

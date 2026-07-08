@@ -1,0 +1,25 @@
+services:
+  app:
+    build: .
+    ports:
+      - '4000:4000'
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/crypto_dashboard
+      # COINGECKO_API_KEY: set in a local .env if you have one; never commit it
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mongo-data:
