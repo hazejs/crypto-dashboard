@@ -126,7 +126,6 @@ h3 { font-size: 13px; font-weight: 600; color: var(--ink-secondary); margin: 20p
 .drawer.open { grid-template-rows: 1fr; opacity: 1; }
 .drawer-inner { overflow: hidden; min-height: 0; }
 .detail { padding: 10px 20px 14px; }
-.detail .sparkline { max-width: 680px; }
 
 /* Loading skeleton */
 .skel {

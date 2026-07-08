@@ -1,9 +1,9 @@
 import type { HistoryPoint } from '../../../../shared/types';
 
-// Fixed viewBox geometry; the SVG scales to its container. The wide right pad
-// leaves room for the end-of-line direct label.
+// Fixed height; width follows the container (passed in by the component). The
+// wide right pad leaves room for the end-of-line direct label.
 export const CHART = {
-  width: 560,
+  width: 560, // fallback before the container is measured
   height: 180,
   pad: { top: 14, right: 84, bottom: 26, left: 10 }
 } as const;
@@ -19,6 +19,7 @@ export function niceTicks(lo: number, hi: number, count = 3): number[] {
 }
 
 export interface Geometry {
+  width: number;
   times: number[];
   prices: number[];
   xs: number[];
@@ -31,8 +32,8 @@ export interface Geometry {
   t1: number;
 }
 
-export function buildGeometry(points: HistoryPoint[]): Geometry {
-  const { width, height, pad } = CHART;
+export function buildGeometry(points: HistoryPoint[], width: number = CHART.width): Geometry {
+  const { height, pad } = CHART;
   const times = points.map((p) => new Date(p.ts).getTime());
   const prices = points.map((p) => p.price);
   let lo = Math.min(...prices);
@@ -50,5 +51,5 @@ export function buildGeometry(points: HistoryPoint[]): Geometry {
   const line = xs.map((px, i) => `${i ? 'L' : 'M'}${px.toFixed(1)} ${ys[i].toFixed(1)}`).join(' ');
   const base = height - pad.bottom;
   const area = `${line} L ${xs[xs.length - 1].toFixed(1)} ${base} L ${xs[0].toFixed(1)} ${base} Z`;
-  return { times, prices, xs, ys, line, area, ticks: niceTicks(lo, hi), y, t0, t1 };
+  return { width, times, prices, xs, ys, line, area, ticks: niceTicks(lo, hi), y, t0, t1 };
 }

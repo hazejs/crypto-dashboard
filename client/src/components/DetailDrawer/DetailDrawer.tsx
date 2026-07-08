@@ -18,9 +18,17 @@ export function DetailDrawer({ open, colSpan, children }: DetailDrawerProps) {
       return;
     }
     setMounted(true);
-    // Expand on the next frame so the browser transitions from the 0fr start state.
-    const frame = requestAnimationFrame(() => setExpanded(true));
-    return () => cancelAnimationFrame(frame);
+    // Two frames: the first lets the browser paint the collapsed (0fr) state,
+    // so the flip to 1fr runs the full transition instead of applying
+    // instantly — keeping open and close at the same speed.
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setExpanded(true));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
   }, [open]);
 
   function onTransitionEnd(e: TransitionEvent<HTMLDivElement>) {
