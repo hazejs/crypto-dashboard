@@ -30,8 +30,6 @@ const poller = createPoller({
   db,
   onUpdate: (snap) => {
     hub?.broadcast(snap);
-    // After the first successful poll we know the coin list — seed history for
-    // a cold database so the detail chart has data right away.
     if (!backfillStarted && snap.upstream.ok) {
       backfillStarted = true;
       backfill.run(snap.coins).catch((err) => console.error('history backfill failed:', err));
@@ -41,8 +39,6 @@ const poller = createPoller({
 
 app.use(API_PREFIX, createRoutes({ db, poller, backfill }));
 
-// In production the server also serves the built frontend (single origin, no
-// CORS). In dev the Vite dev server handles this and proxies /api and /ws here.
 if (fs.existsSync(clientDist)) {
   app.use(express.static(clientDist));
   app.use((req, res, next) => {
@@ -66,8 +62,6 @@ server.listen(config.port, () => {
   console.log(`listening on http://localhost:${config.port}`);
 });
 
-// Not awaited: the app must come up (and serve last-known-good data) even if
-// the first upstream fetch is slow or failing.
 poller.start().catch((err) => console.error('poller failed to start:', err));
 
 for (const signal of SHUTDOWN_SIGNALS) {

@@ -1,5 +1,3 @@
-// Every user-facing string in one place (also the seam for future i18n).
-
 export const STR = {
   appTitle: 'Crypto Market Dashboard',
   loadingMarket: 'Loading market data…',

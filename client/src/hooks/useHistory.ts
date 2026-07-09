@@ -7,8 +7,6 @@ export interface HistoryState {
   error: string | null;
 }
 
-// refreshKey retriggers the fetch — the caller passes lastFetchAt so the chart
-// follows each new server tick without any client-side polling.
 export function useHistory(coinId: string, refreshKey: string | null): HistoryState {
   const [points, setPoints] = useState<HistoryPoint[] | null>(null);
   const [error, setError] = useState<string | null>(null);

@@ -14,7 +14,6 @@ export interface CoinTableProps {
   lastFetchAt: string | null;
 }
 
-// Shared with CoinTableSkeleton so the column headers are defined once.
 export function CoinTableHead() {
   return (
     <thead>
@@ -29,8 +28,6 @@ export function CoinTableHead() {
   );
 }
 
-// Clicking a row toggles a drawer row right beneath it with the coin's detail;
-// clicking the same row (or the drawer's close button) collapses it.
 export function CoinTable({ coins, selectedId, onSelect, lastFetchAt }: CoinTableProps) {
   return (
     <table className="coin-table">

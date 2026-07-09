@@ -44,7 +44,7 @@ test('backfills only coins without recent history', async () => {
   });
   await backfill.run([coin('bitcoin'), coin('ethereum')]);
 
-  assert.deepEqual(fetched, ['bitcoin']); // ethereum already has history
+  assert.deepEqual(fetched, ['bitcoin']);
   assert.equal(inserted.length, points.length);
   assert.equal(inserted[0].coinId, 'bitcoin');
 });
@@ -61,7 +61,7 @@ test('continues past a coin whose backfill fails', async () => {
   });
   await backfill.run([coin('bitcoin'), coin('ethereum')]);
 
-  assert.equal(inserted.length, points.length); // ethereum still backfilled
+  assert.equal(inserted.length, points.length);
   assert.equal(inserted[0].coinId, 'ethereum');
 });
 
@@ -78,7 +78,7 @@ test('ensure backfills a cold coin once, deduping concurrent requests', async ()
   });
   await Promise.all([backfill.ensure('bitcoin'), backfill.ensure('bitcoin')]);
 
-  assert.equal(calls, 1); // concurrent clicks share one upstream call
+  assert.equal(calls, 1);
   assert.equal(inserted.length, points.length);
 });
 
@@ -109,6 +109,6 @@ test('ensure cools down after a failed attempt instead of retrying every request
     }
   });
   await backfill.ensure('bitcoin');
-  await backfill.ensure('bitcoin'); // within the cooldown window
+  await backfill.ensure('bitcoin');
   assert.equal(calls, 1);
 });

@@ -4,7 +4,7 @@ import { useTick } from '../../hooks/useTick';
 import { STR } from '../../strings';
 
 export function FreshnessBadge({ snapshot, connected }: { snapshot: Snapshot | null; connected: boolean }) {
-  useTick(); // re-render each second so the age keeps climbing visibly
+  useTick();
 
   if (!snapshot?.lastFetchAt) return <span className="badge stale">{STR.badgeNoData}</span>;
 

@@ -24,7 +24,6 @@ export function createHub(httpServer: Server, getSnapshot: () => Snapshot): Hub 
     ws.send(message(getSnapshot()));
   });
 
-  // Terminate dead connections so broadcasts don't pile up on zombie sockets.
   const heartbeat = setInterval(() => {
     for (const ws of wss.clients) {
       if (!alive.has(ws)) {

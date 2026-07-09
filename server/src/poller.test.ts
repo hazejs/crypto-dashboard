@@ -40,9 +40,9 @@ test('serves fresh data and persists it on a successful poll', async () => {
   assert.deepEqual(snap.coins, [coin]);
   assert.equal(snap.stale, false);
   assert.equal(snap.upstream.ok, true);
-  assert.equal(updates.length, 1); // broadcast once per poll attempt
-  assert.equal(writes.length, 2); // last-known-good upsert + prune of dropped coins
-  assert.equal(ticks.length, 1); // history tick
+  assert.equal(updates.length, 1);
+  assert.equal(writes.length, 2);
+  assert.equal(ticks.length, 1);
 });
 
 test('keeps last-known-good data and reports the failure when upstream is down', async () => {
@@ -59,10 +59,10 @@ test('keeps last-known-good data and reports the failure when upstream is down',
   poller.stop();
 
   const snap = poller.snapshot();
-  assert.deepEqual(snap.coins, [coin]); // seeded data still served
+  assert.deepEqual(snap.coins, [coin]);
   assert.equal(snap.upstream.ok, false);
   assert.equal(snap.upstream.consecutiveFailures, 1);
   assert.equal(snap.upstream.lastError, 'rate limited (HTTP 429)');
-  assert.equal(snap.stale, true); // seeded data is old, and the UI is told so
+  assert.equal(snap.stale, true);
   assert.equal(snap.lastFetchAt, '2026-01-01T00:00:00.000Z');
 });

@@ -15,7 +15,7 @@ export interface Poller {
 interface PollerDeps {
   db: Db;
   onUpdate: (snapshot: Snapshot) => void;
-  fetchCoins?: () => Promise<Coin[]>; // injectable for tests
+  fetchCoins?: () => Promise<Coin[]>;
 }
 
 interface State {
@@ -35,8 +35,6 @@ function buildSnapshot({ coins, lastFetchAt, upstream }: State): Snapshot {
   };
 }
 
-// Replace the last-known-good docs and append history ticks. Coins that fell
-// out of the top list are pruned so stale ranks never resurface on boot.
 async function persist(db: Db, fresh: Coin[], fetchedAt: Date) {
   await db.coins.bulkWrite([
     ...fresh.map((c) => ({
@@ -55,9 +53,6 @@ async function loadLastKnownGood(db: Db, state: State) {
   console.log(`serving last-known-good data for ${state.coins.length} coins (fetched ${state.lastFetchAt.toISOString()})`);
 }
 
-// The single shared refresh loop. Every user is served from the state this loop
-// maintains — user requests never trigger upstream calls, so upstream load is a
-// constant 1 call per interval regardless of how many clients are connected.
 export function createPoller({ db, onUpdate, fetchCoins = fetchTopCoins }: PollerDeps): Poller {
   const state: State = { coins: [], lastFetchAt: null, upstream: { ok: false, consecutiveFailures: 0, lastError: null } };
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -75,8 +70,6 @@ export function createPoller({ db, onUpdate, fetchCoins = fetchTopCoins }: Polle
     } catch (err) {
       const failures = state.upstream.consecutiveFailures + 1;
       state.upstream = { ok: false, consecutiveFailures: failures, lastError: (err as Error).message };
-      // Back off exponentially so we don't hammer a struggling API, and honor
-      // Retry-After when rate limited.
       delay = Math.min(config.pollIntervalMs * 2 ** Math.min(failures, BACKOFF_EXPONENT_CAP), MAX_BACKOFF_MS);
       if (err instanceof UpstreamError && err.retryAfterMs) delay = Math.max(delay, err.retryAfterMs);
       console.warn(`upstream fetch failed (${failures} in a row): ${(err as Error).message}; retrying in ${Math.round(delay / 1000)}s`);

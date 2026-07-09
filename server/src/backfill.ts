@@ -15,14 +15,10 @@ export interface Backfill {
 
 interface BackfillDeps {
   db: Db;
-  fetchHistory?: typeof fetchCoinHistory; // injectable for tests
+  fetchHistory?: typeof fetchCoinHistory;
   staggerMs?: number;
 }
 
-// Seeds history for coins that have (almost) no recent ticks: proactively for
-// the whole list right after the first poll (staggered, top ranks first), and
-// lazily from the history route so the very first click always gets a chart,
-// even on a cold database. The frontend still only reads from our database.
 export function createBackfill({ db, fetchHistory = fetchCoinHistory, staggerMs = STAGGER_MS }: BackfillDeps): Backfill {
   const inflight = new Map<string, Promise<boolean>>();
   const lastAttempt = new Map<string, number>();
@@ -35,8 +31,6 @@ export function createBackfill({ db, fetchHistory = fetchCoinHistory, staggerMs 
     return (await db.ticks.countDocuments({ coinId, ts: { $gte: since } })) >= MIN_RECENT_POINTS;
   }
 
-  // Always resolves (never throws); returns true because an upstream call was
-  // made — failures are logged and retried after the cooldown.
   async function fill(coinId: string): Promise<boolean> {
     lastAttempt.set(coinId, Date.now());
     try {
@@ -51,9 +45,6 @@ export function createBackfill({ db, fetchHistory = fetchCoinHistory, staggerMs 
     return true;
   }
 
-  // Backfill the coin unless it already has recent history, an attempt is
-  // already running (concurrent requests share it), or one failed very
-  // recently. Returns whether an upstream call was made — run() paces on it.
   async function ensure(coinId: string): Promise<boolean> {
     const running = inflight.get(coinId);
     if (running) {

@@ -17,7 +17,7 @@ describe('CoinTable', () => {
 
   it('opens a detail drawer row under the selected coin', () => {
     render(<CoinTable coins={coins} selectedId="bitcoin" onSelect={vi.fn()} lastFetchAt={null} />);
-    expect(screen.getAllByRole('row')).toHaveLength(4); // header + 2 coins + drawer
+    expect(screen.getAllByRole('row')).toHaveLength(4);
     screen.getByText('Loading history…');
   });
 
@@ -26,7 +26,7 @@ describe('CoinTable', () => {
     render(<CoinTable coins={coins} selectedId="bitcoin" onSelect={onSelect} lastFetchAt={null} />);
     fireEvent.click(screen.getByText(/Ethereum/));
     expect(onSelect).toHaveBeenLastCalledWith('ethereum');
-    fireEvent.click(screen.getAllByText(/Bitcoin/)[0]); // row cell; drawer heading also matches
+    fireEvent.click(screen.getAllByText(/Bitcoin/)[0]);
     expect(onSelect).toHaveBeenLastCalledWith(null);
   });
 });

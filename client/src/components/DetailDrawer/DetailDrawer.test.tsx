@@ -25,7 +25,7 @@ describe('DetailDrawer', () => {
   it('unmounts only after the closing transition ends', () => {
     const { rerender, container } = render(drawer(true));
     rerender(drawer(false));
-    screen.getByText('content'); // still mounted during the exit transition
+    screen.getByText('content');
     fireEvent.transitionEnd(container.querySelector('.drawer')!);
     expect(screen.queryByText('content')).toBeNull();
   });

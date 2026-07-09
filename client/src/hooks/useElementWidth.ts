@@ -2,8 +2,6 @@ import { useLayoutEffect, useState, type RefObject } from 'react';
 
 const DEFAULT_WIDTH = 560;
 
-// Tracks an element's rendered width so SVG charts can draw in a 1:1 pixel
-// coordinate system (full container width, no scaling distortion).
 export function useElementWidth(ref: RefObject<HTMLElement | null>): number {
   const [width, setWidth] = useState(DEFAULT_WIDTH);
 

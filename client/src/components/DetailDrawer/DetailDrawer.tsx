@@ -6,21 +6,16 @@ export interface DetailDrawerProps {
   children: ReactNode;
 }
 
-// Table-row drawer that slides open and closed (grid-template-rows 0fr <-> 1fr).
-// Content stays mounted through the exit transition, then unmounts.
 export function DetailDrawer({ open, colSpan, children }: DetailDrawerProps) {
   const [mounted, setMounted] = useState(open);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (!open) {
-      setExpanded(false); // collapse; unmount happens on transitionend
+      setExpanded(false);
       return;
     }
     setMounted(true);
-    // Two frames: the first lets the browser paint the collapsed (0fr) state,
-    // so the flip to 1fr runs the full transition instead of applying
-    // instantly — keeping open and close at the same speed.
     let second = 0;
     const first = requestAnimationFrame(() => {
       second = requestAnimationFrame(() => setExpanded(true));

@@ -1,8 +1,5 @@
 import type { SNAPSHOT_MESSAGE_TYPE } from './constants.ts';
 
-// Wire types shared by server and client. Dates cross the wire as ISO strings;
-// the server converts at its serialization boundary.
-
 export interface Coin {
   id: string;
   symbol: string;

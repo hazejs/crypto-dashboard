@@ -42,8 +42,6 @@ function Tooltip({ geom, h }: { geom: Geometry; h: number }) {
   );
 }
 
-// The viewBox width tracks the container's rendered width (1:1 pixels), so the
-// chart fills whatever space it gets without stretching text or line weights.
 export function Sparkline({ points }: { points: HistoryPoint[] }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(wrapRef);
@@ -51,8 +49,6 @@ export function Sparkline({ points }: { points: HistoryPoint[] }) {
   const geom = useMemo(() => buildGeometry(points, width), [points, width]);
   const last = points.length - 1;
 
-  // Crosshair snaps to the nearest data point — the reader aims at a time,
-  // never at the 2px line itself.
   function onPointerMove(e: PointerEvent<HTMLDivElement>) {
     const rect = wrapRef.current!.getBoundingClientRect();
     const px = ((e.clientX - rect.left) / rect.width) * geom.width;

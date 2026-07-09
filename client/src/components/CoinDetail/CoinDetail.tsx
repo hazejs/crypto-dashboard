@@ -13,9 +13,6 @@ export interface CoinDetailProps {
 
 const MIN_CHART_POINTS = 2;
 
-// History comes from our own database, never a fresh upstream call. The parent
-// keys this component by coin id, so switching coins remounts with a clean
-// loading state; lastFetchAt refreshes the chart after each server tick.
 export function CoinDetail({ coin, lastFetchAt, onClose }: CoinDetailProps) {
   const { points, error } = useHistory(coin.id, lastFetchAt);
 

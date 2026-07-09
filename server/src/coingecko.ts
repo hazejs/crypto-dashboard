@@ -77,8 +77,6 @@ export async function fetchTopCoins(): Promise<Coin[]> {
   }));
 }
 
-// ~5-minute-granularity price points for the last 24h — used once per coin to
-// seed the history chart on a cold database.
 export async function fetchCoinHistory(coinId: string): Promise<{ ts: Date; price: number }[]> {
   const url = buildUrl(`/coins/${encodeURIComponent(coinId)}/market_chart`, HISTORY_PARAMS);
   const data = (await request(url)) as { prices?: [number, number][] };

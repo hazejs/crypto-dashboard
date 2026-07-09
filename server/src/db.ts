@@ -10,12 +10,6 @@ const SERVER_SELECTION_TIMEOUT_MS = 3000;
 const CONNECT_ATTEMPTS = 10;
 const CONNECT_RETRY_DELAY_MS = 2000;
 
-// Two collections, deliberately:
-//  - coins: one doc per coin, replaced on every successful fetch — the
-//    last-known-good snapshot. Survives restarts, so the app serves data
-//    immediately even if upstream is down at boot.
-//  - ticks: append-only time series powering the history view; a TTL index
-//    caps retention so it never needs manual cleanup.
 export interface CoinDoc extends Coin {
   _id: string;
   updatedAt: Date;
@@ -36,7 +30,6 @@ export interface Db {
 export async function connectDb(): Promise<Db> {
   const client = new MongoClient(config.mongoUri, { serverSelectionTimeoutMS: SERVER_SELECTION_TIMEOUT_MS });
 
-  // Retry so `docker compose up` works even when Mongo accepts connections late.
   for (let attempt = 1; ; attempt++) {
     try {
       await client.connect();
@@ -53,8 +46,6 @@ export async function connectDb(): Promise<Db> {
   const ticks = db.collection<TickDoc>(TICKS_COLLECTION);
   await coins.createIndex({ rank: 1 });
   await ticks.createIndex({ coinId: 1, ts: -1 });
-  // Recreate the TTL index if HISTORY_TTL_SECONDS changed since it was built —
-  // Mongo rejects createIndex with different options (IndexOptionsConflict).
   try {
     await ticks.createIndex(TTL_INDEX_KEY, { expireAfterSeconds: config.historyTtlSeconds });
   } catch (err) {

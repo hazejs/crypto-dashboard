@@ -12,9 +12,6 @@ export interface LiveSocketHandlers {
   onConnectionChange: (connected: boolean) => void;
 }
 
-// All live data arrives over this socket: the server sends a full snapshot on
-// connect and after every poll attempt, so no client-side polling is needed.
-// Reconnects with exponential backoff. Returns a dispose function.
 export function createLiveSocket({ onSnapshot, onConnectionChange }: LiveSocketHandlers): () => void {
   let ws: WebSocket | null = null;
   let retryTimer: number | undefined;
