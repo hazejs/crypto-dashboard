@@ -19,6 +19,13 @@ const MIN_CHART_POINTS = 2;
 export function CoinDetail({ coin, lastFetchAt, onClose }: CoinDetailProps) {
   const { points, error } = useHistory(coin.id, lastFetchAt);
 
+  function history() {
+    if (error) return <StateMessage error>{STR.historyError(error)}</StateMessage>;
+    if (!points) return <StateMessage>{STR.historyLoading}</StateMessage>;
+    if (points.length < MIN_CHART_POINTS) return <StateMessage>{STR.historyTooShort}</StateMessage>;
+    return <Sparkline points={points} />;
+  }
+
   return (
     <div className="detail" aria-label={STR.detailAria(coin.name)}>
       <header className="detail-header">
@@ -42,10 +49,7 @@ export function CoinDetail({ coin, lastFetchAt, onClose }: CoinDetailProps) {
         {STR.historyHeading} <span className="muted">{STR.historySource}</span>
       </h3>
 
-      {error && <StateMessage error>{STR.historyError(error)}</StateMessage>}
-      {!error && !points && <StateMessage>{STR.historyLoading}</StateMessage>}
-      {!error && points && points.length < MIN_CHART_POINTS && <StateMessage>{STR.historyTooShort}</StateMessage>}
-      {!error && points && points.length >= MIN_CHART_POINTS && <Sparkline points={points} />}
+      {history()}
     </div>
   );
 }

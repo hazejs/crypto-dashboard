@@ -8,6 +8,17 @@ export const CHART = {
   pad: { top: 14, right: 84, bottom: 26, left: 10 }
 } as const;
 
+// Extra room above/below the price range so a flat hour still draws mid-chart.
+const DOMAIN_PAD_RATIO = 0.08;
+
+// Linear map from a value domain to a pixel range. Inverting an axis is just
+// swapping the domain arguments (see the y scale below).
+const scale = (d0: number, d1: number, r0: number, r1: number) => (v: number) =>
+  r0 + ((v - d0) / (d1 - d0 || 1)) * (r1 - r0);
+
+const toPath = (xs: number[], ys: number[]) =>
+  xs.map((x, i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${ys[i].toFixed(1)}`).join(' ');
+
 // ~3 gridlines at clean 1/2/5 x 10^k steps.
 export function niceTicks(lo: number, hi: number, count = 3): number[] {
   const rawStep = (hi - lo) / count;
@@ -28,28 +39,25 @@ export interface Geometry {
   area: string;
   ticks: number[];
   y: (v: number) => number;
-  t0: number;
-  t1: number;
 }
 
 export function buildGeometry(points: HistoryPoint[], width: number = CHART.width): Geometry {
   const { height, pad } = CHART;
   const times = points.map((p) => new Date(p.ts).getTime());
   const prices = points.map((p) => p.price);
-  let lo = Math.min(...prices);
-  let hi = Math.max(...prices);
-  // Pad the domain so a flat hour still renders a visible line.
-  const domainPad = (hi - lo || Math.abs(hi) || 1) * 0.08;
-  lo -= domainPad;
-  hi += domainPad;
-  const t0 = times[0];
-  const t1 = times[times.length - 1];
-  const x = (t: number) => pad.left + ((t - t0) / (t1 - t0 || 1)) * (width - pad.left - pad.right);
-  const y = (v: number) => pad.top + (1 - (v - lo) / (hi - lo)) * (height - pad.top - pad.bottom);
+
+  const domainPad = (Math.max(...prices) - Math.min(...prices) || Math.abs(prices[0]) || 1) * DOMAIN_PAD_RATIO;
+  const lo = Math.min(...prices) - domainPad;
+  const hi = Math.max(...prices) + domainPad;
+
+  const x = scale(times[0], times[times.length - 1], pad.left, width - pad.right);
+  const y = scale(hi, lo, pad.top, height - pad.bottom); // hi maps to the top
+
   const xs = times.map(x);
   const ys = prices.map(y);
-  const line = xs.map((px, i) => `${i ? 'L' : 'M'}${px.toFixed(1)} ${ys[i].toFixed(1)}`).join(' ');
-  const base = height - pad.bottom;
-  const area = `${line} L ${xs[xs.length - 1].toFixed(1)} ${base} L ${xs[0].toFixed(1)} ${base} Z`;
-  return { width, times, prices, xs, ys, line, area, ticks: niceTicks(lo, hi), y, t0, t1 };
+  const line = toPath(xs, ys);
+  const baseline = height - pad.bottom;
+  const area = `${line} L ${xs[xs.length - 1].toFixed(1)} ${baseline} L ${xs[0].toFixed(1)} ${baseline} Z`;
+
+  return { width, times, prices, xs, ys, line, area, ticks: niceTicks(lo, hi), y };
 }

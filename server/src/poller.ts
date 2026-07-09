@@ -69,7 +69,8 @@ export function createPoller({ db, onUpdate, fetchCoins = fetchTopCoins }: Polle
       const fetchedAt = new Date();
       const fresh = await fetchCoins();
       await persist(db, fresh, fetchedAt);
-      Object.assign(state, { coins: fresh, lastFetchAt: fetchedAt });
+      state.coins = fresh;
+      state.lastFetchAt = fetchedAt;
       state.upstream = { ok: true, consecutiveFailures: 0, lastError: null };
     } catch (err) {
       const failures = state.upstream.consecutiveFailures + 1;

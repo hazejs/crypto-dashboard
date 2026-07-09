@@ -23,10 +23,10 @@ function Axes({ geom, last }: { geom: Geometry; last: number }) {
         </g>
       ))}
       <text className="tick" x={geom.xs[0]} y={H - 8}>
-        {timeFmt.format(geom.t0)}
+        {timeFmt.format(geom.times[0])}
       </text>
       <text className="tick" x={geom.xs[last]} y={H - 8} textAnchor="end">
-        {timeFmt.format(geom.t1)}
+        {timeFmt.format(geom.times[last])}
       </text>
     </>
   );
