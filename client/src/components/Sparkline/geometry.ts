@@ -16,14 +16,21 @@ const toPath = (xs: number[], ys: number[]) =>
     .map((x, i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${ys[i].toFixed(1)}`)
     .join(' ');
 
+const EPSILON = 1e-9;
+
+function niceStep(roughStep: number): number {
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  const multiplier =
+    [1, 2, 5, 10].find((m) => m * magnitude >= roughStep) ?? 10;
+  return multiplier * magnitude;
+}
+
 export function niceTicks(lo: number, hi: number, count = 3): number[] {
-  const rawStep = (hi - lo) / count;
-  const mag = 10 ** Math.floor(Math.log10(rawStep));
-  const step =
-    [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= rawStep) ?? 10 * mag;
+  const step = niceStep((hi - lo) / count);
+  const firstIndex = Math.ceil(lo / step);
+  const lastIndex = Math.floor(hi / step + EPSILON);
   const ticks: number[] = [];
-  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-6; v += step)
-    ticks.push(v);
+  for (let i = firstIndex; i <= lastIndex; i++) ticks.push(i * step);
   return ticks;
 }
 
