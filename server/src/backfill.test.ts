@@ -64,3 +64,51 @@ test('continues past a coin whose backfill fails', async () => {
   assert.equal(inserted.length, points.length); // ethereum still backfilled
   assert.equal(inserted[0].coinId, 'ethereum');
 });
+
+test('ensure backfills a cold coin once, deduping concurrent requests', async () => {
+  const { db, inserted } = fakeDb({ bitcoin: 0 });
+  let calls = 0;
+  const backfill = createBackfill({
+    db,
+    staggerMs: 0,
+    fetchHistory: async () => {
+      calls++;
+      return points;
+    }
+  });
+  await Promise.all([backfill.ensure('bitcoin'), backfill.ensure('bitcoin')]);
+
+  assert.equal(calls, 1); // concurrent clicks share one upstream call
+  assert.equal(inserted.length, points.length);
+});
+
+test('ensure skips coins that already have recent history', async () => {
+  const { db } = fakeDb({ bitcoin: 12 });
+  let calls = 0;
+  const backfill = createBackfill({
+    db,
+    staggerMs: 0,
+    fetchHistory: async () => {
+      calls++;
+      return points;
+    }
+  });
+  assert.equal(await backfill.ensure('bitcoin'), false);
+  assert.equal(calls, 0);
+});
+
+test('ensure cools down after a failed attempt instead of retrying every request', async () => {
+  const { db } = fakeDb({ bitcoin: 0 });
+  let calls = 0;
+  const backfill = createBackfill({
+    db,
+    staggerMs: 0,
+    fetchHistory: async () => {
+      calls++;
+      throw new Error('boom');
+    }
+  });
+  await backfill.ensure('bitcoin');
+  await backfill.ensure('bitcoin'); // within the cooldown window
+  assert.equal(calls, 1);
+});

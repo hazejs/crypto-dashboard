@@ -39,7 +39,7 @@ const poller = createPoller({
   }
 });
 
-app.use(API_PREFIX, createRoutes({ db, poller }));
+app.use(API_PREFIX, createRoutes({ db, poller, backfill }));
 
 // In production the server also serves the built frontend (single origin, no
 // CORS). In dev the Vite dev server handles this and proxies /api and /ws here.
